@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 public class Client
 {
@@ -13,7 +12,7 @@ public class Client
     public string Init()
     {
         // Generate a random secret string
-        string secret = SecretKey.GenerateRandomString(32);
+        string secret = Crypto.GenerateSecretKey(32);
 
         // Create a JSON object with the secret
         var secretObject = new Dictionary<string, string> { { "SecretKey", secret } };
