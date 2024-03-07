@@ -8,13 +8,16 @@ public class InitCommand : ICommand
             return;
         }
 
+        string clientFile = args[0];
+        string serverFile = args[1];
+
         Console.Write("Enter master password: ");
         string masterPassword = Console.ReadLine()!;
-  
-        Client client = new Client(args[0]);
+        
+        Client client = new Client(clientFile);
         string secretKey = client.Init();
-
-        Server server = new Server(args[1]);
+  
+        Server server = new Server(serverFile);
         server.Init(masterPassword, secretKey);
         
         Console.WriteLine($"Client Secret: {secretKey}");

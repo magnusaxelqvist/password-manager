@@ -8,17 +8,21 @@ public class SetCommand : ICommand
             return;
         }
 
+        string clientFile = args[0];
+        string serverFile = args[1];
+        string property = args[2];
+        
         Console.Write("Enter master password: ");
         string masterPassword = Console.ReadLine()!;
 
         Console.Write($"Enter value for {args[2]}: ");
         string value = Console.ReadLine()!;
 
-        Client client = new Client(args[0]);
+        Client client = new Client(clientFile);
         string secretKey = client.GetSecretKey();
     
-        Server server = new Server(args[1]);
-        server.Set(masterPassword, secretKey, args[2], value);
+        Server server = new Server(serverFile);
+        server.Set(masterPassword, secretKey, property, value);
 
         Console.WriteLine($"Key {args[2]} set successfully.");
     }
