@@ -17,7 +17,7 @@ public class Vault
         get { return dict; }
         set { dict = value; } // Allow deserialization to set the dictionary
     }
-    
+
     public void Set(string property, string value)
     {
         dict[property] = value;
@@ -30,5 +30,10 @@ public class Vault
             return value;
         }
         return null;
+    }
+
+    public IEnumerable<string> GetAllProperties()
+    {
+        return dict.Keys;
     }
 }

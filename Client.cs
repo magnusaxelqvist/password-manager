@@ -14,21 +14,20 @@ public class Client
         // Generate a random secret string
         string secret = Crypto.GenerateSecretKey(32);
 
-        // Create a JSON object with the secret
-        var secretObject = new Dictionary<string, string> { { "SecretKey", secret } };
-        var json = JsonSerializer.Serialize(secretObject);
+        FileDictionary dictionary = new FileDictionary(filePath);
+        dictionary.Set("SecretKey", secret);
+        dictionary.Save();
 
-        // Write the JSON to the filePath, overwrite if already exists
-        File.WriteAllText(filePath, json);
-        // return the secret
         return secret;
     }
 
     public string GetSecretKey()
     {
-        string json = File.ReadAllText(filePath);
-        var secretObject = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-        if (secretObject == null || !secretObject.TryGetValue("SecretKey", out var secret))
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+
+        string? secret = dictionary.Get("SecretKey");
+
+        if (secret == null)
         {
             throw new ArgumentException("SecretKey not found or deserialization failed.");
         }

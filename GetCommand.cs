@@ -4,13 +4,13 @@ public class GetCommand : ICommand
     {
         if (args.Length < 2)
         {
-            Console.WriteLine("Usage: get <client> <server> [<prop >] {<pwd >}");
+            Console.WriteLine("Usage: get <client> <server> [<prop>] {<pwd>}");
             return;
         }
 
         string clientFile = args[0];
         string serverFile = args[1];
-        string property = args[2];
+        string? property = args.Length > 2 ? args[2] : null;
 
         Console.Write("Enter master password: ");
         string masterPassword = Console.ReadLine()!;
@@ -19,15 +19,24 @@ public class GetCommand : ICommand
         string secretKey = client.GetSecretKey();
 
         Server server = new Server(serverFile);
-        string? value = server.GetProperty(masterPassword, secretKey, property);
-
-        if (value != null)
+        if (property != null)
         {
-            Console.WriteLine($"Value: {value}");
+            string? value = server.GetProperty(masterPassword, secretKey, property);
+            if (value != null)
+            {
+                Console.WriteLine($"Value: {value}");
+            }
+            else
+            {
+                Console.WriteLine("Property not found.");
+            }
         }
         else
         {
-            Console.WriteLine("Property not found.");
+            foreach (var prop in server.GetAllProperties(masterPassword, secretKey))
+            {
+                Console.WriteLine($"{prop}");
+            }
         }
     }
 }

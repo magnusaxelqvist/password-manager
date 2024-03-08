@@ -14,57 +14,49 @@ public class Server
         byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
         byte[] vaultIv = Crypto.GenerateIv();
 
-        Dictionary<string, string> serverDictionary = new Dictionary<string, string>
-        {
-            {"iv", Convert.ToBase64String(vaultIv)},
-            {"vault", Convert.ToBase64String(Crypto.EncryptVault(new Vault(), vaultKey, vaultIv))}
-        };
-
-        SaveServerDictionaryToFile(this.filePath, serverDictionary);
+        FileDictionary dictionary = new FileDictionary(filePath);
+        dictionary.Set("iv", Convert.ToBase64String(vaultIv));
+        dictionary.Set("vault", Convert.ToBase64String(Crypto.EncryptVault(new Vault(), vaultKey, vaultIv)));
+        dictionary.Save();
     }
 
     public string? GetProperty(string masterPassword, string secretKey, string property)
     {
-        var serverDictionary = ReadServerDictionaryFromFile(this.filePath);
-        Vault vault = GetVaultFromServerDictionary(serverDictionary, masterPassword, secretKey);
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
         return vault.Get(property);
     }
 
     public void SetProperty(string masterPassword, string secretKey, string property, string value)
     {
-        var serverDictionary = ReadServerDictionaryFromFile(this.filePath);
-        Vault vault = GetVaultFromServerDictionary(serverDictionary, masterPassword, secretKey);
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
         vault.Set(property, value);
 
-        SetVaultInServerDictionary(serverDictionary, vault, masterPassword, secretKey);
-        SaveServerDictionaryToFile(this.filePath, serverDictionary);
+        SetVaultInDictionary(dictionary, vault, masterPassword, secretKey);
+        dictionary.Save();
     }
 
-    private Dictionary<string, string> ReadServerDictionaryFromFile(string filePath)
-    {
-        string serverJson = File.ReadAllText(filePath);
-        var serverDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(serverJson) ?? throw new InvalidOperationException("Failed to deserialize the server dictionary from file.");
-        return serverDictionary;
-    }
-
-    private void SaveServerDictionaryToFile(string filePath, Dictionary<string, string> serverDictionary)
-    {
-        File.WriteAllText(filePath, JsonSerializer.Serialize(serverDictionary));
-    }
-
-    private Vault GetVaultFromServerDictionary(Dictionary<string, string> serverDictionary, string masterPassword, string secretKey)
+    private Vault GetVaultFromDictionary(FileDictionary dictionary, string masterPassword, string secretKey)
     {
         byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
-        byte[] vaultIv = Convert.FromBase64String(serverDictionary["iv"]);
-        byte[] encryptedVault = Convert.FromBase64String(serverDictionary["vault"]);
+        byte[] vaultIv = Convert.FromBase64String(dictionary.Get("iv")!);
+        byte[] encryptedVault = Convert.FromBase64String(dictionary.Get("vault")!);
 
         return Crypto.DecryptVault(encryptedVault, vaultKey, vaultIv);
     }
 
-    private void SetVaultInServerDictionary(Dictionary<string, string> serverDictionary, Vault vault, string masterPassword, string secretKey)
+    private void SetVaultInDictionary(FileDictionary dictionary, Vault vault, string masterPassword, string secretKey)
     {
         byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
-        byte[] vaultIv = Convert.FromBase64String(serverDictionary["iv"]);
-        serverDictionary["vault"] = Convert.ToBase64String(Crypto.EncryptVault(vault, vaultKey, vaultIv));
+        byte[] vaultIv = Convert.FromBase64String(dictionary.Get("iv")!);
+        dictionary.Set("vault", Convert.ToBase64String(Crypto.EncryptVault(vault, vaultKey, vaultIv)));
+    }
+
+    public IEnumerable<string> GetAllProperties(string masterPassword, string secretKey)
+    {
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        return vault.GetAllProperties();
     }
 }

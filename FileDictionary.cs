@@ -6,15 +6,15 @@ using System.Text.Json;
 public class FileDictionary
 {
     private string filePath;
-    private Dictionary<string, string> dictionary = new Dictionary<string, string>();
+    private Dictionary<string, string> dictionary;
 
     public FileDictionary(string filePath)
     {
         this.filePath = filePath;
-        Load();
+        this.dictionary = new Dictionary<string, string>();
     }
 
-    private void Load()
+    public FileDictionary Load()
     {
         if (File.Exists(filePath))
         {
@@ -28,6 +28,8 @@ public class FileDictionary
         {
             dictionary = new Dictionary<string, string>();
         }
+
+        return this;
     }
 
     public void Save()
@@ -39,17 +41,17 @@ public class FileDictionary
         File.WriteAllText(filePath, fileContent);
     }
 
-    public string? GetProperty(string key)
+    public string? Get(string key)
     {
         return this.dictionary.TryGetValue(key, out string? value) ? value : null;// Or throw an exception, based on your error handling preference
     }
 
-    public void SetProperty(string key, string value)
+    public void Set(string key, string value)
     {
         dictionary[key] = value;
     }
 
-    public bool RemoveProperty(string key)
+    public bool Delete(string key)
     {
         return dictionary.Remove(key);
     }
