@@ -9,6 +9,7 @@ public class CommandLine
         commands.Add("set", new SetCommand());
         commands.Add("get", new GetCommand());
         commands.Add("delete", new DeleteCommand());
+        commands.Add("secret", new SecretCommand());
     }
 
     public void ParseAndExecute(string[] args)
