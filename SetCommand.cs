@@ -11,7 +11,7 @@ public class SetCommand : ICommand
         string clientFile = args[0];
         string serverFile = args[1];
         string property = args[2];
-        
+
         Console.Write("Enter master password: ");
         string masterPassword = Console.ReadLine()!;
 
@@ -20,9 +20,9 @@ public class SetCommand : ICommand
 
         Client client = new Client(clientFile);
         string secretKey = client.GetSecretKey();
-    
+
         Server server = new Server(serverFile);
-        server.Set(masterPassword, secretKey, property, value);
+        server.SetProperty(masterPassword, secretKey, property, value);
 
         Console.WriteLine($"Key {args[2]} set successfully.");
     }

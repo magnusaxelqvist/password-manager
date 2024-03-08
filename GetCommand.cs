@@ -18,8 +18,8 @@ public class GetCommand : ICommand
         Client client = new Client(clientFile);
         string secretKey = client.GetSecretKey();
 
-        Server server = new Server(serverFile); 
-        string? value = server.Get(masterPassword, secretKey, property);
+        Server server = new Server(serverFile);
+        string? value = server.GetProperty(masterPassword, secretKey, property);
 
         if (value != null)
         {

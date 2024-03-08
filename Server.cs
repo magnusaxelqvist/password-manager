@@ -20,49 +20,51 @@ public class Server
             {"vault", Convert.ToBase64String(Crypto.EncryptVault(new Vault(), vaultKey, vaultIv))}
         };
 
-        // Serialize the server dictionary to JSON
-        string serverJson = JsonSerializer.Serialize(serverDictionary);
-
-        // Write the JSON to the filePath, overwrite if already exists
-        File.WriteAllText(filePath, serverJson);
+        SaveServerDictionaryToFile(this.filePath, serverDictionary);
     }
 
-    public void Set(string masterPassword, string secretKey, string property, string value)
+    public string? GetProperty(string masterPassword, string secretKey, string property)
     {
-        string serverJson = File.ReadAllText(filePath);
-        var serverDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(serverJson);
-        if (serverDictionary == null)
-        {
-            throw new InvalidOperationException("Failed to deserialize the server dictionary.");
-        }
+        var serverDictionary = ReadServerDictionaryFromFile(this.filePath);
+        Vault vault = GetVaultFromServerDictionary(serverDictionary, masterPassword, secretKey);
+        return vault.Get(property);
+    }
 
-        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
-        byte[] vaultIv = Convert.FromBase64String(serverDictionary["iv"]);
-        byte[] encryptedVault = Convert.FromBase64String(serverDictionary["vault"]);
-
-        Vault vault = Crypto.DecryptVault(encryptedVault, vaultKey, vaultIv);
+    public void SetProperty(string masterPassword, string secretKey, string property, string value)
+    {
+        var serverDictionary = ReadServerDictionaryFromFile(this.filePath);
+        Vault vault = GetVaultFromServerDictionary(serverDictionary, masterPassword, secretKey);
         vault.Set(property, value);
 
-        serverDictionary["vault"] = Convert.ToBase64String(Crypto.EncryptVault(vault, vaultKey, vaultIv));
-        serverJson = JsonSerializer.Serialize(serverDictionary);
-
-        File.WriteAllText(filePath, serverJson);
+        SetVaultInServerDictionary(serverDictionary, vault, masterPassword, secretKey);
+        SaveServerDictionaryToFile(this.filePath, serverDictionary);
     }
 
-    public string? Get(string masterPassword, string secretKey, string property)
+    private Dictionary<string, string> ReadServerDictionaryFromFile(string filePath)
     {
         string serverJson = File.ReadAllText(filePath);
-        var serverDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(serverJson);
-        if (serverDictionary == null)
-        {
-            throw new InvalidOperationException("Failed to deserialize the server dictionary.");
-        }
+        var serverDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(serverJson) ?? throw new InvalidOperationException("Failed to deserialize the server dictionary from file.");
+        return serverDictionary;
+    }
 
+    private void SaveServerDictionaryToFile(string filePath, Dictionary<string, string> serverDictionary)
+    {
+        File.WriteAllText(filePath, JsonSerializer.Serialize(serverDictionary));
+    }
+
+    private Vault GetVaultFromServerDictionary(Dictionary<string, string> serverDictionary, string masterPassword, string secretKey)
+    {
         byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
         byte[] vaultIv = Convert.FromBase64String(serverDictionary["iv"]);
         byte[] encryptedVault = Convert.FromBase64String(serverDictionary["vault"]);
 
-        Vault vault = Crypto.DecryptVault(encryptedVault, vaultKey, vaultIv);
-        return vault.Get(property);
+        return Crypto.DecryptVault(encryptedVault, vaultKey, vaultIv);
+    }
+
+    private void SetVaultInServerDictionary(Dictionary<string, string> serverDictionary, Vault vault, string masterPassword, string secretKey)
+    {
+        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
+        byte[] vaultIv = Convert.FromBase64String(serverDictionary["iv"]);
+        serverDictionary["vault"] = Convert.ToBase64String(Crypto.EncryptVault(vault, vaultKey, vaultIv));
     }
 }
