@@ -8,6 +8,7 @@ public class CommandLine
         commands.Add("init", new InitCommand());
         commands.Add("set", new SetCommand());
         commands.Add("get", new GetCommand());
+        commands.Add("delete", new DeleteCommand());
     }
 
     public void ParseAndExecute(string[] args)

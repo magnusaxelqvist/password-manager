@@ -36,4 +36,9 @@ public class Vault
     {
         return dict.Keys;
     }
+
+    internal void Delete(string property)
+    {
+        dict.Remove(property);
+    }
 }

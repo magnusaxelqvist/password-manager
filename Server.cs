@@ -59,4 +59,14 @@ public class Server
         Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
         return vault.GetAllProperties();
     }
+
+    internal void DeleteProperty(string masterPassword, string secretKey, string property)
+    {
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        vault.Delete(property);
+
+        SetVaultInDictionary(dictionary, vault, masterPassword, secretKey);
+        dictionary.Save();
+    }
 }
