@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 
 public class FileDictionary
@@ -19,9 +16,6 @@ public class FileDictionary
         if (File.Exists(filePath))
         {
             string fileContent = File.ReadAllText(filePath);
-
-            Console.WriteLine("Load:" + fileContent);
-
             dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(fileContent) ?? new Dictionary<string, string>();
         }
         else
@@ -35,9 +29,6 @@ public class FileDictionary
     public void Save()
     {
         string fileContent = JsonSerializer.Serialize(dictionary);
-
-        Console.WriteLine("Save:" + fileContent);
-
         File.WriteAllText(filePath, fileContent);
     }
 
