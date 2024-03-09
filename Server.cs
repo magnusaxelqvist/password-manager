@@ -9,9 +9,9 @@ public class Server
         this.filePath = filePath;
     }
 
-    public void Init(string masterPassword, string secretKey)
+    public void Init(string masterPassword, string secret)
     {
-        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
+        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secret);
         byte[] vaultIv = Crypto.GenerateIv();
 
         FileDictionary dictionary = new FileDictionary(filePath);
@@ -20,53 +20,58 @@ public class Server
         dictionary.Save();
     }
 
-    public string? GetProperty(string masterPassword, string secretKey, string property)
+    public void Validate(string masterPassword, string secret) {
+        FileDictionary dictionary = new FileDictionary(filePath).Load();
+        GetVaultFromDictionary(dictionary, masterPassword, secret);
+    }
+
+    public string? GetProperty(string masterPassword, string secret, string property)
     {
         FileDictionary dictionary = new FileDictionary(filePath).Load();
-        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secret);
         return vault.Get(property);
     }
 
-    public void SetProperty(string masterPassword, string secretKey, string property, string value)
+    public void SetProperty(string masterPassword, string secret, string property, string value)
     {
         FileDictionary dictionary = new FileDictionary(filePath).Load();
-        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secret);
         vault.Set(property, value);
 
-        SetVaultInDictionary(dictionary, vault, masterPassword, secretKey);
+        SetVaultInDictionary(dictionary, vault, masterPassword, secret);
         dictionary.Save();
     }
 
-    private Vault GetVaultFromDictionary(FileDictionary dictionary, string masterPassword, string secretKey)
+    private Vault GetVaultFromDictionary(FileDictionary dictionary, string masterPassword, string secret)
     {
-        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
+        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secret);
         byte[] vaultIv = Convert.FromBase64String(dictionary.Get("iv")!);
         byte[] encryptedVault = Convert.FromBase64String(dictionary.Get("vault")!);
 
         return Crypto.DecryptVault(encryptedVault, vaultKey, vaultIv);
     }
 
-    private void SetVaultInDictionary(FileDictionary dictionary, Vault vault, string masterPassword, string secretKey)
+    private void SetVaultInDictionary(FileDictionary dictionary, Vault vault, string masterPassword, string secret)
     {
-        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secretKey);
+        byte[] vaultKey = Crypto.GenerateVaultKey(masterPassword, secret);
         byte[] vaultIv = Convert.FromBase64String(dictionary.Get("iv")!);
         dictionary.Set("vault", Convert.ToBase64String(Crypto.EncryptVault(vault, vaultKey, vaultIv)));
     }
 
-    public IEnumerable<string> GetAllProperties(string masterPassword, string secretKey)
+    public IEnumerable<string> GetAllProperties(string masterPassword, string secret)
     {
         FileDictionary dictionary = new FileDictionary(filePath).Load();
-        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secret);
         return vault.GetAllProperties();
     }
 
-    internal void DeleteProperty(string masterPassword, string secretKey, string property)
+    internal void DeleteProperty(string masterPassword, string secret, string property)
     {
         FileDictionary dictionary = new FileDictionary(filePath).Load();
-        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secretKey);
+        Vault vault = GetVaultFromDictionary(dictionary, masterPassword, secret);
         vault.Delete(property);
 
-        SetVaultInDictionary(dictionary, vault, masterPassword, secretKey);
+        SetVaultInDictionary(dictionary, vault, masterPassword, secret);
         dictionary.Save();
     }
 }

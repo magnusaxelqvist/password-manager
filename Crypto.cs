@@ -4,11 +4,11 @@ using System.Text.Json;
 
 public static class Crypto
 {
-    public static string GenerateSecretKey(int length)
+    public static string GenerateSecret(int length)
     {
-        byte[] secretKey = new byte[length];
-        RandomNumberGenerator.Create().GetBytes(secretKey);
-        return Convert.ToBase64String(secretKey);
+        byte[] secret = new byte[length];
+        RandomNumberGenerator.Create().GetBytes(secret);
+        return Convert.ToBase64String(secret);
     }
 
     public static Vault DecryptVault(byte[] vault, byte[] vaultKey, byte[] vaultIv)

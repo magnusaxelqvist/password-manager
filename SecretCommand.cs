@@ -10,7 +10,7 @@ public class SecretCommand : ICommand
 
         string clientFile = args[0];
         Client client = new Client(clientFile);
-        string secretKey = client.GetSecretKey();
-        Console.WriteLine($"Client Secret: {secretKey}");
+        string secret = client.GetSecret();
+        Console.WriteLine($"secret: {secret}");
     }
 }

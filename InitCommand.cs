@@ -11,15 +11,25 @@ public class InitCommand : ICommand
         string clientFile = args[0];
         string serverFile = args[1];
 
-        Console.Write("Enter master password: ");
-        string masterPassword = Console.ReadLine()!;
-        
+        string masterPassword = ReadPasswordWithMinLength(8);
+
         Client client = new Client(clientFile);
-        string secretKey = client.Init();
-  
+        string secret = client.Init();
+
         Server server = new Server(serverFile);
-        server.Init(masterPassword, secretKey);
-        
-        Console.WriteLine($"Client Secret: {secretKey}");
+        server.Init(masterPassword, secret);
+
+        Console.WriteLine($"secret: {secret}");
+    }
+
+    private string ReadPasswordWithMinLength(int minLength)
+    {
+        string masterPassword;
+        do
+        {
+            Console.Write($"Create master password (min length {minLength}): ");
+            masterPassword = Console.ReadLine()!;
+        } while (masterPassword.Length < minLength);
+        return masterPassword;
     }
 }

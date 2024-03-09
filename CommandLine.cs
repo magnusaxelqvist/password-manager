@@ -10,6 +10,7 @@ public class CommandLine
         commands.Add("get", new GetCommand());
         commands.Add("delete", new DeleteCommand());
         commands.Add("secret", new SecretCommand());
+        commands.Add("create", new CreateCommand());
     }
 
     public void ParseAndExecute(string[] args)
@@ -23,7 +24,7 @@ public class CommandLine
         string commandName = args[0];
         if (commands.ContainsKey(commandName))
         {
-            string[] commandArgs = args.Skip(1).ToArray(); // Exclude the command name from the args
+            string[] commandArgs = args.Skip(1).ToArray();
             commands[commandName].Execute(commandArgs);
         }
         else

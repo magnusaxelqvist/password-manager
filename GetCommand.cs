@@ -16,12 +16,12 @@ public class GetCommand : ICommand
         string masterPassword = Console.ReadLine()!;
 
         Client client = new Client(clientFile);
-        string secretKey = client.GetSecretKey();
+        string secret = client.GetSecret();
 
         Server server = new Server(serverFile);
         if (property != null)
         {
-            string? value = server.GetProperty(masterPassword, secretKey, property);
+            string? value = server.GetProperty(masterPassword, secret, property);
             if (value != null)
             {
                 Console.WriteLine($"Value: {value}");
@@ -33,7 +33,7 @@ public class GetCommand : ICommand
         }
         else
         {
-            foreach (var prop in server.GetAllProperties(masterPassword, secretKey))
+            foreach (var prop in server.GetAllProperties(masterPassword, secret))
             {
                 Console.WriteLine($"{prop}");
             }

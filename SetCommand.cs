@@ -1,3 +1,4 @@
+
 public class SetCommand : ICommand
 {
     public void Execute(string[] args)
@@ -19,8 +20,8 @@ public class SetCommand : ICommand
         string value;
         if (generateValue)
         {
-            value = Crypto.GenerateSecretKey(8);
-            Console.WriteLine($"Generated password for {property}: {value}");
+            value = Crypto.GenerateSecret(8);
+            Console.WriteLine($"password for {property}: {value}");
         }
         else
         {
@@ -29,11 +30,11 @@ public class SetCommand : ICommand
         }
 
         Client client = new Client(clientFile);
-        string secretKey = client.GetSecretKey();
+        string secret = client.GetSecret();
 
         Server server = new Server(serverFile);
-        server.SetProperty(masterPassword, secretKey, property, value);
+        server.SetProperty(masterPassword, secret, property, value);
 
-        Console.WriteLine($"Key {property} set successfully.");
+        Console.WriteLine($"{property} set successfully.");
     }
 }

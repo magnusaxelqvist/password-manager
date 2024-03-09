@@ -11,21 +11,24 @@ public class Client
 
     public string Init()
     {
-        // Generate a random secret string
-        string secret = Crypto.GenerateSecretKey(32);
-
-        FileDictionary dictionary = new FileDictionary(filePath);
-        dictionary.Set("SecretKey", secret);
-        dictionary.Save();
-
-        return secret;
+        string secret = Crypto.GenerateSecret(32);
+        return Init(secret);
     }
 
-    public string GetSecretKey()
+    public string Init(string secretKey)
+    {
+        FileDictionary dictionary = new FileDictionary(filePath);
+        dictionary.Set("secret", secretKey);
+        dictionary.Save();
+
+        return secretKey;
+    }
+
+    public string GetSecret()
     {
         FileDictionary dictionary = new FileDictionary(filePath).Load();
 
-        string? secret = dictionary.Get("SecretKey");
+        string? secret = dictionary.Get("secret");
 
         if (secret == null)
         {

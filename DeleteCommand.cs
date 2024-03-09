@@ -16,13 +16,13 @@ public class DeleteCommand : ICommand
         string masterPassword = Console.ReadLine()!;
 
         Client client = new Client(clientFile);
-        string secretKey = client.GetSecretKey();
+        string secret = client.GetSecret();
 
         Server server = new Server(serverFile);
-        string? value = server.GetProperty(masterPassword, secretKey, property);
+        string? value = server.GetProperty(masterPassword, secret, property);
         if (value != null)
         {
-            server.DeleteProperty(masterPassword, secretKey, property);
+            server.DeleteProperty(masterPassword, secret, property);
             Console.WriteLine($"{property} deleted successfully.");
         }
         else
