@@ -17,19 +17,31 @@ public class CommandLine
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("No command provided.");
+            Console.WriteLine("usage: {init|create|get|set|delete|secret} <args>");
             return;
         }
 
         string commandName = args[0];
         if (commands.ContainsKey(commandName))
         {
-            string[] commandArgs = args.Skip(1).ToArray();
-            commands[commandName].Execute(commandArgs);
+            try
+            {
+                RunCommand(commands[commandName], args);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{commandName} command failed ({ex.Message})");
+            }
         }
         else
         {
             Console.WriteLine($"Unknown command: {commandName}");
         }
+    }
+
+    private void RunCommand(ICommand command, string[] args)
+    {
+        string[] commandArgs = args.Skip(1).ToArray();
+        command.Execute(commandArgs);
     }
 }
